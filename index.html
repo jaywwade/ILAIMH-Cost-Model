@@ -5,25 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ILAIMH I/ECMH Credential — Cost Model</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Montserrat', sans-serif; background: #F5F4F9; color: #333840; min-height: 100vh; padding: 32px 16px; }
-  .container { max-width: 820px; margin: 0 auto; }
+  .container { max-width: 860px; margin: 0 auto; }
   .card { background: #fff; border-radius: 12px; overflow: hidden; border: 0.5px solid #E0DCF0; margin-bottom: 20px; }
   .se-header { background: #39207C; padding: 18px 24px; display: flex; align-items: center; gap: 14px; }
   .se-wordmark { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 0.01em; }
   .se-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; letter-spacing: 0.03em; }
-  .dashboard-body { padding: 24px; }
-  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 28px; }
-  .metric-card { background: #F8F6FD; border-radius: 8px; padding: 14px 16px; border-left: 3px solid #39207C; }
-  .metric-label { font-size: 11px; color: #666; font-weight: 500; margin-bottom: 5px; }
-  .metric-value { font-size: 20px; font-weight: 700; color: #39207C; }
-  .metric-sub { font-size: 11px; color: #999; margin-top: 3px; }
+  .db { padding: 24px; }
+  .overview-box { background: #F8F6FD; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; font-size: 12px; color: #555; line-height: 1.7; }
+  .overview-box strong { color: #1a1a1a; font-weight: 700; }
+  .overview-box a { color: #534AB7; }
+  .purpose-box { background: #F0EDF8; border-left: 3px solid #39207C; border-radius: 0 8px 8px 0; padding: 10px 14px; margin-bottom: 24px; font-size: 12px; color: #555; line-height: 1.7; }
+  .purpose-box strong { color: #39207C; font-weight: 700; }
   .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #39207C; margin: 0 0 12px; }
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; margin-bottom: 28px; align-items: stretch; }
+  .metric-card { background: #F8F6FD; border-radius: 8px; padding: 14px 16px; border-left: 3px solid #39207C; }
+  .metric-label { font-size: 11px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+  .metric-value { font-size: 20px; font-weight: 700; color: #39207C; }
+  .metric-sub { font-size: 10px; color: #999; margin-top: 4px; }
+  .reset-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 16px; height: 100%; min-height: 60px; width: 100%; background: #fff; border: 0.5px solid #ccc; border-radius: 8px; font-size: 12px; font-weight: 700; color: #39207C; cursor: pointer; font-family: 'Montserrat', sans-serif; white-space: nowrap; }
+  .reset-btn:hover { background: #F0EDF8; }
   .divider { border: none; border-top: 0.5px solid #E8E4F4; margin: 22px 0; }
   .input-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .input-row label { font-size: 12px; color: #555; width: 220px; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
-  .slider-wrap { flex: 1; position: relative; }
+  .input-row label { font-size: 12px; color: #555; width: 225px; flex-shrink: 0; font-family: 'Montserrat', sans-serif; }
+  .slider-col { flex: 1; display: flex; flex-direction: column; }
   .slider-track-area { position: relative; height: 28px; display: flex; align-items: center; }
   .slider-track-area input[type=range] { width: 100%; margin: 0; accent-color: #39207C; position: relative; z-index: 2; cursor: pointer; }
   .baseline-marker { position: absolute; bottom: -2px; width: 2px; height: 10px; background: #39207C; border-radius: 1px; z-index: 1; pointer-events: none; transform: translateX(-50%); }
@@ -32,6 +41,19 @@
   .val { font-size: 13px; font-weight: 700; color: #39207C; font-family: 'Montserrat', sans-serif; }
   .val.at-baseline { color: #aaa; }
   .bl-badge { font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 20px; background: #F0EDF8; color: #534AB7; white-space: nowrap; font-family: 'Montserrat', sans-serif; }
+  .rate-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .rate-card { background: #F8F6FD; border-radius: 8px; padding: 10px 12px; }
+  .rate-card-label { font-size: 11px; font-weight: 700; color: #555; margin-bottom: 10px; }
+  .rate-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .rate-row:last-child { margin-bottom: 0; }
+  .rate-tier { font-size: 11px; color: #999; width: 28px; flex-shrink: 0; }
+  .rate-right { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; min-width: 72px; gap: 2px; }
+  .rate-display { font-size: 13px; font-weight: 700; color: #39207C; }
+  .rate-display.at-baseline { color: #aaa; }
+  .rate-badge { font-size: 10px; font-weight: 500; padding: 2px 5px; border-radius: 20px; background: #F0EDF8; color: #534AB7; white-space: nowrap; text-align: right; }
+  .legend { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding: 10px 12px; background: #F8F6FD; border-radius: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #666; font-family: 'Montserrat', sans-serif; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 2px; flex-shrink: 0; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'Montserrat', sans-serif; }
   thead tr { background: #39207C; }
   thead th { font-size: 10px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; padding: 9px 10px; text-align: right; }
@@ -41,16 +63,8 @@
   tbody td:first-child { text-align: left; color: #666; }
   tbody tr:nth-child(even) td { background: #FAFAF8; }
   tr.total-row td { font-weight: 700; border-top: 1.5px solid #39207C; border-bottom: none; color: #39207C; background: transparent !important; padding-top: 11px; }
-  .legend { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; padding: 10px 12px; background: #F8F6FD; border-radius: 8px; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #666; font-family: 'Montserrat', sans-serif; }
-  .legend-swatch { width: 24px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-  .bar-wrap { margin-bottom: 16px; }
-  .bar-label { font-size: 12px; color: #555; font-weight: 500; margin-bottom: 4px; font-family: 'Montserrat', sans-serif; }
-  .bar-track { position: relative; height: 10px; border-radius: 5px; background: #F0EDF8; overflow: hidden; margin-bottom: 4px; }
-  .bar-fill-high { position: absolute; height: 100%; border-radius: 5px; background: #AFA9EC; }
-  .bar-fill-low { position: absolute; height: 100%; border-radius: 5px; background: #39207C; }
-  .bar-range { font-size: 11px; color: #999; font-family: 'Montserrat', sans-serif; }
   .footer { text-align: center; font-size: 11px; color: #aaa; padding: 16px; font-family: 'Montserrat', sans-serif; }
+  .hint { font-size: 10px; color: #999; display: block; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -62,63 +76,143 @@
         <div class="se-subtitle">ILAIMH I/ECMH Credential — Cost Model</div>
       </div>
     </div>
-    <div class="dashboard-body">
+
+    <div class="db">
+
+      <div class="overview-box">
+        <strong>Overview</strong><br>
+        This dashboard was created by Start Early, in collaboration with ILAIMH. All hours and cost estimates were reviewed and validated by ILAIMH, based on the "true time" it costs to operate the current Credential program model. <a href="https://docs.google.com/spreadsheets/d/1aCNWt87rKGyxkxFLIzWqOdHUpjTbPlV0/edit?usp=drive_link&ouid=103212028612383203365&rtpof=true&sd=true" target="_blank">See here</a> for the primary documentation of cost model estimates. This cost model and "true time" of Credential operation is consistent across both current versions of the program: (1) operated and managed solely by ILAIMH and (2) operated and managed collaboratively by ILAIMH and Erikson. Questions? Reach out to Jay Wade at <a href="mailto:jwade@startearly.org">jwade@startearly.org</a>.
+      </div>
+
+      <div class="purpose-box">
+        <strong>Purpose</strong><br>
+        This dashboard allows the ILAIMH team to estimate how changes to the Credential model affect the true cost, as they work to refine and sustain its model in the future.
+      </div>
 
       <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-label">Total cost — low</div><div class="metric-value" id="total-low">—</div><div class="metric-sub" id="cost-per-low">—</div></div>
-        <div class="metric-card"><div class="metric-label">Total cost — high</div><div class="metric-value" id="total-high">—</div><div class="metric-sub" id="cost-per-high">—</div></div>
-        <div class="metric-card"><div class="metric-label">Total staff hours</div><div class="metric-value" id="total-hours">—</div><div class="metric-sub">across all roles</div></div>
-        <div class="metric-card"><div class="metric-label">Fixed costs</div><div class="metric-value">$2,410</div><div class="metric-sub">Smartsheet (annual)</div></div>
+        <div class="metric-card">
+          <div class="metric-label">Total Staff Hours</div>
+          <div class="metric-value" id="total-hours">—</div>
+          <div class="metric-sub" id="total-hours-sub">&nbsp;</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Cost — Low</div>
+          <div class="metric-value" id="total-low">—</div>
+          <div class="metric-sub" id="total-low-sub">&nbsp;</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Total Cost — High</div>
+          <div class="metric-value" id="total-high">—</div>
+          <div class="metric-sub" id="total-high-sub">&nbsp;</div>
+        </div>
+        <button class="reset-btn" onclick="resetAll()" aria-label="Reset all sliders to baseline">
+          <i class="ti ti-refresh" aria-hidden="true" style="font-size:16px;"></i>&nbsp;Reset to baseline
+        </button>
       </div>
 
       <p class="section-label">Cohort inputs</p>
       <div class="input-row">
         <label>Participants per cohort</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="participants" min="2" max="15" step="1" value="6"><div class="baseline-marker" id="bm-participants"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="participants" min="0" max="15" step="1" value="6"><div class="baseline-marker" id="bm-participants"></div></div></div>
         <div class="val-group"><span class="val" id="participants-val">6</span><span class="bl-badge" id="participants-badge">baseline</span></div>
       </div>
       <div class="input-row">
         <label>Cohort meetings</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="meetings" min="6" max="18" step="1" value="10"><div class="baseline-marker" id="bm-meetings"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="meetings" min="0" max="18" step="1" value="10"><div class="baseline-marker" id="bm-meetings"></div></div></div>
         <div class="val-group"><span class="val" id="meetings-val">10</span><span class="bl-badge" id="meetings-badge">baseline</span></div>
       </div>
 
       <hr class="divider">
       <p class="section-label">Hours per unit</p>
+
       <div class="input-row">
         <label>Cohort meeting hours (per meeting)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-meeting" min="1" max="6" step="0.5" value="3"><div class="baseline-marker" id="bm-h-meeting"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-meeting" min="0" max="6" step="0.5" value="3"><div class="baseline-marker" id="bm-h-meeting"></div></div></div>
         <div class="val-group"><span class="val" id="h-meeting-val">3</span><span class="bl-badge" id="h-meeting-badge">baseline</span></div>
       </div>
       <div class="input-row">
         <label>Reflective supervision (per participant)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-rs" min="1" max="12" step="0.5" value="5"><div class="baseline-marker" id="bm-h-rs"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-rs" min="0" max="12" step="0.5" value="5"><div class="baseline-marker" id="bm-h-rs"></div></div></div>
         <div class="val-group"><span class="val" id="h-rs-val">5</span><span class="bl-badge" id="h-rs-badge">baseline</span></div>
       </div>
       <div class="input-row">
-        <label>Journal review (per participant)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-journal" min="1" max="12" step="0.5" value="5"><div class="baseline-marker" id="bm-h-journal"></div></div></div>
+        <label>Journal review (per participant)<span class="hint">affects Dir/Coord hours</span></label>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-journal" min="0" max="12" step="0.5" value="5"><div class="baseline-marker" id="bm-h-journal"></div></div></div>
         <div class="val-group"><span class="val" id="h-journal-val">5</span><span class="bl-badge" id="h-journal-badge">baseline</span></div>
       </div>
       <div class="input-row">
         <label>Facilitator reflection (per month)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-facrefl" min="0.5" max="4" step="0.5" value="1"><div class="baseline-marker" id="bm-h-facrefl"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-facrefl" min="0" max="4" step="0.5" value="1"><div class="baseline-marker" id="bm-h-facrefl"></div></div></div>
         <div class="val-group"><span class="val" id="h-facrefl-val">1</span><span class="bl-badge" id="h-facrefl-badge">baseline</span></div>
       </div>
       <div class="input-row">
-        <label>Case study & panel review (per participant)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-panel" min="0.5" max="4" step="0.5" value="1.5"><div class="baseline-marker" id="bm-h-panel"></div></div></div>
+        <label>Case study &amp; panel review (per participant)</label>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-panel" min="0" max="4" step="0.5" value="1.5"><div class="baseline-marker" id="bm-h-panel"></div></div></div>
         <div class="val-group"><span class="val" id="h-panel-val">1.5</span><span class="bl-badge" id="h-panel-badge">baseline</span></div>
       </div>
       <div class="input-row">
-        <label>Admin (per participant)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-admin" min="20" max="80" step="1" value="43"><div class="baseline-marker" id="bm-h-admin"></div></div></div>
-        <div class="val-group"><span class="val" id="h-admin-val">43</span><span class="bl-badge" id="h-admin-badge">baseline</span></div>
+        <label>Admin (per participant)<span class="hint">affects Dir/Coord hours</span></label>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-admin" min="0" max="120" step="1" value="69"><div class="baseline-marker" id="bm-h-admin"></div></div></div>
+        <div class="val-group"><span class="val" id="h-admin-val">69.3</span><span class="bl-badge" id="h-admin-badge">baseline</span></div>
       </div>
       <div class="input-row">
         <label>Volunteer hours (per participant)</label>
-        <div class="slider-wrap"><div class="slider-track-area"><input type="range" id="h-volunteer" min="5" max="20" step="1" value="11"><div class="baseline-marker" id="bm-h-volunteer"></div></div></div>
+        <div class="slider-col"><div class="slider-track-area"><input type="range" id="h-volunteer" min="0" max="20" step="1" value="11"><div class="baseline-marker" id="bm-h-volunteer"></div></div></div>
         <div class="val-group"><span class="val" id="h-volunteer-val">11</span><span class="bl-badge" id="h-volunteer-badge">baseline</span></div>
+      </div>
+
+      <hr class="divider">
+      <p class="section-label">Staff rate adjustments ($/hr)</p>
+      <div class="rate-grid">
+        <div class="rate-card">
+          <div class="rate-card-label">Director / Coord</div>
+          <div class="rate-row">
+            <span class="rate-tier">Low</span>
+            <input type="range" id="r-coord-low" min="0" max="150" step="5" value="50" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-coord-low-display">$50</span><span class="rate-badge" id="r-coord-low-badge">baseline</span></div>
+          </div>
+          <div class="rate-row">
+            <span class="rate-tier">High</span>
+            <input type="range" id="r-coord-high" min="0" max="150" step="5" value="75" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-coord-high-display">$75</span><span class="rate-badge" id="r-coord-high-badge">baseline</span></div>
+          </div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-label">Credential Facilitator</div>
+          <div class="rate-row">
+            <span class="rate-tier">Low</span>
+            <input type="range" id="r-fac-low" min="0" max="250" step="5" value="125" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-fac-low-display">$125</span><span class="rate-badge" id="r-fac-low-badge">baseline</span></div>
+          </div>
+          <div class="rate-row">
+            <span class="rate-tier">High</span>
+            <input type="range" id="r-fac-high" min="0" max="250" step="5" value="150" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-fac-high-display">$150</span><span class="rate-badge" id="r-fac-high-badge">baseline</span></div>
+          </div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-card-label">Credentialed Members / Volunteers</div>
+          <div class="rate-row">
+            <span class="rate-tier">Low</span>
+            <input type="range" id="r-vol-low" min="0" max="200" step="5" value="75" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-vol-low-display">$75</span><span class="rate-badge" id="r-vol-low-badge">baseline</span></div>
+          </div>
+          <div class="rate-row">
+            <span class="rate-tier">High</span>
+            <input type="range" id="r-vol-high" min="0" max="200" step="5" value="125" style="flex:1;accent-color:#39207C;cursor:pointer;">
+            <div class="rate-right"><span class="rate-display" id="r-vol-high-display">$125</span><span class="rate-badge" id="r-vol-high-badge">baseline</span></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <p class="section-label">Cost range by role</p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#39207C;"></div><span>Low estimate (lower staff rates)</span></div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#AFA9EC;"></div><span>High estimate (higher staff rates)</span></div>
+      </div>
+      <div style="position:relative;width:100%;height:180px;">
+        <canvas id="stackedChart" role="img" aria-label="Stacked horizontal bar chart showing low and high cost estimates by role"></canvas>
       </div>
 
       <hr class="divider">
@@ -128,47 +222,97 @@
         <tbody id="breakdown-body"></tbody>
       </table>
 
-      <hr class="divider">
-      <p class="section-label">Cost range by role</p>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-swatch" style="background:#39207C;"></div><span>Low estimate (lower staff rates)</span></div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#AFA9EC;"></div><span>High estimate (higher staff rates)</span></div>
-      </div>
-      <div id="bar-section"></div>
-
     </div>
   </div>
-  <div class="footer">Start Early · ILAIMH I/ECMH Credential Program · Cost Model Draft</div>
+  <div class="footer">Start Early · ILAIMH I/ECMH Credential Program · Cost Model</div>
 </div>
 
 <script>
   const $=id=>document.getElementById(id);
   const fmt=n=>'$'+Math.round(n).toLocaleString();
   const fmtH=n=>Math.round(n*10)/10;
-  const BASELINES={participants:6,meetings:10,'h-meeting':3,'h-rs':5,'h-journal':5,'h-facrefl':1,'h-panel':1.5,'h-admin':43,'h-volunteer':11};
+  const ADMIN_BASELINE=69.333;
 
-  function pct(val,min,max){const f=(val-min)/(max-min);return `calc(${f*100}% - ${(f-0.5)*16}px)`;}
-  function positionMarker(id){const m=$('bm-'+id),i=$(id);if(m&&i)m.style.left=pct(BASELINES[id],+i.min,+i.max);}
-  function updateBadge(id,val){
-    const b=$(`${id}-badge`),v=$(`${id}-val`),bl=BASELINES[id],at=Math.abs(val-bl)<0.001;
+  const BASELINES={
+    participants:6,meetings:10,
+    'h-meeting':3,'h-rs':5,'h-journal':5,'h-facrefl':1,'h-panel':1.5,
+    'h-admin':69,'h-volunteer':11,
+    'r-coord-low':50,'r-coord-high':75,
+    'r-fac-low':125,'r-fac-high':150,
+    'r-vol-low':75,'r-vol-high':125
+  };
+
+  const SLIDER_IDS=Object.keys(BASELINES);
+  let baselineCosts=null;
+  let chart=null;
+
+  function pct(val,min,max){const f=(val-min)/(max-min);return`calc(${f*100}% - ${(f-0.5)*16}px)`;}
+
+  function positionMarker(id){
+    const m=$('bm-'+id),i=$(id);
+    if(m&&i)m.style.left=pct(BASELINES[id],+i.min,+i.max);
+  }
+
+  function updateBadge(id,val,displayVal){
+    const b=$(`${id}-badge`),v=$(`${id}-val`);
+    if(!b||!v)return;
+    const bl=BASELINES[id],at=Math.abs(val-bl)<0.001;
+    v.textContent=displayVal!==undefined?displayVal:fmtH(val);
     if(at){b.textContent='baseline';v.classList.add('at-baseline');}
     else{const d=val-bl;b.textContent=`bl: ${fmtH(bl)} (${d>0?'+':''}${fmtH(d)})`;v.classList.remove('at-baseline');}
   }
 
-  function recalc(){
-    const P=+$('participants').value,M=+$('meetings').value,hM=+$('h-meeting').value,hRS=+$('h-rs').value,
-          hJ=+$('h-journal').value,hF=+$('h-facrefl').value,hP=+$('h-panel').value,hA=+$('h-admin').value,hV=+$('h-volunteer').value;
-    const vals={participants:P,meetings:M,'h-meeting':hM,'h-rs':hRS,'h-journal':hJ,'h-facrefl':hF,'h-panel':hP,'h-admin':hA,'h-volunteer':hV};
-    Object.entries(vals).forEach(([id,v])=>{$(`${id}-val`).textContent=fmtH(v);updateBadge(id,v);});
+  function updateRateCard(id,val){
+    const bl=BASELINES[id],display=$(`${id}-display`),badge=$(`${id}-badge`);
+    if(!display||!badge)return;
+    display.textContent='$'+val;
+    const at=Math.abs(val-bl)<0.001;
+    if(at){badge.textContent='baseline';display.classList.add('at-baseline');}
+    else{const d=val-bl;badge.textContent=`bl: $${bl} (${d>0?'+':''}${d})`;display.classList.remove('at-baseline');}
+  }
 
-    const coord=Math.round(290*(P/6)*10)/10;
-    const fac=(hM*M)+(hRS*P)+(hP*P)+(hJ*P)+(hF*M);
-    const vol=hV*P;
+  function updateCardSub(elId,current,baseline,isCurrency){
+    const el=$(elId);if(!el)return;
+    const at=Math.abs(current-baseline)<0.01;
+    if(at){el.textContent='baseline';el.style.color='#aaa';}
+    else{
+      const d=current-baseline;
+      const dStr=isCurrency?`${d>0?'+':'-'}${fmt(Math.abs(d))}`:`${d>0?'+':''}${fmtH(d)} hrs`;
+      el.textContent=`bl: ${isCurrency?fmt(baseline):fmtH(baseline)+' hrs'} (${dStr})`;
+      el.style.color='#534AB7';
+    }
+  }
+
+  function recalc(){
+    const P=+$('participants').value, M=+$('meetings').value;
+    const hMeeting=+$('h-meeting').value, hRS=+$('h-rs').value;
+    const hJournal=+$('h-journal').value, hFacRefl=+$('h-facrefl').value;
+    const hPanel=+$('h-panel').value, adminSlider=+$('h-admin').value, hVol=+$('h-volunteer').value;
+    const rCL=+$('r-coord-low').value, rCH=+$('r-coord-high').value;
+    const rFL=+$('r-fac-low').value,   rFH=+$('r-fac-high').value;
+    const rVL=+$('r-vol-low').value,   rVH=+$('r-vol-high').value;
+
+    const adminHrs=adminSlider===69?ADMIN_BASELINE:adminSlider;
+    const adminDisplay=adminSlider===69?'69.3':String(adminSlider);
+
+    updateBadge('participants',P); updateBadge('meetings',M);
+    updateBadge('h-meeting',hMeeting); updateBadge('h-rs',hRS);
+    updateBadge('h-journal',hJournal); updateBadge('h-facrefl',hFacRefl);
+    updateBadge('h-panel',hPanel); updateBadge('h-admin',adminSlider,adminDisplay);
+    updateBadge('h-volunteer',hVol);
+    updateRateCard('r-coord-low',rCL); updateRateCard('r-coord-high',rCH);
+    updateRateCard('r-fac-low',rFL);   updateRateCard('r-fac-high',rFH);
+    updateRateCard('r-vol-low',rVL);   updateRateCard('r-vol-high',rVH);
+
+    const coordHours=(adminHrs*P)+(hJournal*P);
+    const facHours=(hMeeting*M)+(hRS*P)+(hPanel*P)+(hJournal*P)+(hFacRefl*M);
+    const volHours=hVol*P;
     const FIXED=2410;
+
     const roles=[
-      {name:'Credential Director/Coord',hours:coord,rLow:50,rHigh:75},
-      {name:'Credential Facilitator',hours:fac,rLow:125,rHigh:150},
-      {name:'Credentialed Member/Volunteers',hours:vol,rLow:75,rHigh:125},
+      {name:'Director/Coord',    hours:coordHours,rLow:rCL,rHigh:rCH},
+      {name:'Facilitator',       hours:facHours,  rLow:rFL,rHigh:rFH},
+      {name:'Members/Volunteers',hours:volHours,  rLow:rVL,rHigh:rVH},
     ];
 
     let tH=0,tL=FIXED,tHi=FIXED,rows='';
@@ -180,24 +324,62 @@
     rows+=`<tr><td>Smartsheet (fixed)</td><td>—</td><td>—</td><td>—</td><td>${fmt(FIXED)}</td><td>${fmt(FIXED)}</td></tr>`;
     rows+=`<tr class="total-row"><td>Total</td><td>${fmtH(tH)}</td><td></td><td></td><td>${fmt(tL)}</td><td>${fmt(tHi)}</td></tr>`;
     $('breakdown-body').innerHTML=rows;
-    $('total-low').textContent=fmt(tL);$('total-high').textContent=fmt(tHi);
-    $('cost-per-low').textContent=fmt(tL/P)+' per participant';$('cost-per-high').textContent=fmt(tHi/P)+' per participant';
-    $('total-hours').textContent=fmtH(tH)+' hrs';
 
-    const mx=tHi*1.15;
-    let bars='';
-    roles.forEach(r=>{
-      const cL=r.hours*r.rLow,cH=r.hours*r.rHigh;
-      bars+=`<div class="bar-wrap">
-        <div class="bar-label">${r.name}</div>
-        <div class="bar-track"><div class="bar-fill-high" style="width:${Math.round(cH/mx*100)}%"></div><div class="bar-fill-low" style="width:${Math.round(cL/mx*100)}%"></div></div>
-        <div class="bar-range">${fmt(cL)} – ${fmt(cH)}</div>
-      </div>`;
-    });
-    $('bar-section').innerHTML=bars;
+    $('total-hours').textContent=fmtH(tH)+' hrs';
+    $('total-low').textContent=fmt(tL);
+    $('total-high').textContent=fmt(tHi);
+
+    if(!baselineCosts) baselineCosts={hours:tH,low:tL,high:tHi};
+    updateCardSub('total-hours-sub',tH,baselineCosts.hours,false);
+    updateCardSub('total-low-sub',tL,baselineCosts.low,true);
+    updateCardSub('total-high-sub',tHi,baselineCosts.high,true);
+
+    const lowData=roles.map(r=>Math.round(r.hours*r.rLow));
+    const diffData=roles.map(r=>Math.round(r.hours*r.rHigh-r.hours*r.rLow));
+    const labels=roles.map(r=>r.name);
+
+    if(chart){
+      chart.data.labels=labels;
+      chart.data.datasets[0].data=lowData;
+      chart.data.datasets[1].data=diffData;
+      chart.update();
+    } else {
+      chart=new Chart($('stackedChart'),{
+        type:'bar',
+        data:{labels,datasets:[
+          {label:'Low estimate',data:lowData,backgroundColor:'#39207C',borderRadius:3},
+          {label:'High (additional)',data:diffData,backgroundColor:'#AFA9EC',borderRadius:3}
+        ]},
+        options:{
+          indexAxis:'y',responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false},tooltip:{callbacks:{
+            label:ctx=>{
+              if(ctx.datasetIndex===0)return` Low: $${ctx.raw.toLocaleString()}`;
+              const low=ctx.chart.data.datasets[0].data[ctx.dataIndex];
+              return` High: $${(low+ctx.raw).toLocaleString()}`;
+            }
+          }}},
+          scales:{
+            x:{stacked:true,ticks:{callback:v=>'$'+Math.round(v/1000)+'k',font:{size:11,family:'Montserrat'}},grid:{color:'rgba(0,0,0,0.06)'}},
+            y:{stacked:true,ticks:{font:{size:11,family:'Montserrat'}},grid:{display:false}}
+          }
+        }
+      });
+    }
   }
 
-  Object.keys(BASELINES).forEach(id=>{$(id).addEventListener('input',recalc);positionMarker(id);});
+  function resetAll(){
+    baselineCosts=null;
+    SLIDER_IDS.forEach(id=>{const el=$(id);if(el)el.value=BASELINES[id];});
+    recalc();
+  }
+
+  SLIDER_IDS.forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.addEventListener('input',recalc);
+    positionMarker(id);
+  });
+
   recalc();
 </script>
 </body>
